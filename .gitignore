@@ -1,0 +1,13 @@
+*.apk
+*.bin
+*.dtb
+*.img
+*.tar.gz
+*.zip
+vivado*
+webtalk*
+tmp
+uImage
+.vscode
+.Xil
+privat
