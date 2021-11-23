@@ -11,3 +11,4 @@ uImage
 .vscode
 .Xil
 privat
+__pycache__
