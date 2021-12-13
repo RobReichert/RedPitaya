@@ -70,7 +70,7 @@ connect_bd_net [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK] [get_bd_pins pr
 
 
 # ====================================================================================
-# Generate output products and wrapper, add constraint any any additional files 
+# Generate output products and wrapper, add constraint and any additional files 
 # ====================================================================================
 
 generate_target all [get_files  $bd_path/system.bd]
