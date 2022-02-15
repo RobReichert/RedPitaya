@@ -15,6 +15,7 @@ Modified from Pavel Demin's server.c
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <time.h>
 
 #define PORT 1001
 #define NR_SAMPLE 12 //number of samples
@@ -34,15 +35,16 @@ int main(){
     uint32_t buffer[READBUFFER_SICE];//buffer for data transmission 
     //Application dependend Variables
     void *cfg, *dat; //pointer to memory data
-    uint32_t dat1=0, dat2=0, dat3=0, dat4=0;
-    int nsmpl//number of samples
+    uint32_t dat1=0, dat2=0, SampleRate=10, SampleNr=1000;
+    int nsmpl; //number of samples
+    int stream=0; //set stream (1) or burst (0) mode
     //Measurement time calculation
     int measuring = 0;
     clock_t time_begin;
     double time_spent;
 
 ////Load FPGA Programm
-    //system("cat /usr/src/Programm.bit > /dev/xdevcfg");
+    system("cat /usr/src/system_wrapper.bit > /dev/xdevcfg");
 
 ////Memory init
     //open memory file
@@ -90,49 +92,72 @@ int main(){
             }
             //Split incomming data to value and command
             value = recv_buffer & 0xfffffff;
-            command = recv_buffer>>28
+            command = recv_buffer>>28;
+            //printf("command: %5d value: %5d \n",command,value);
             switch(command){
                 case 0: //Write config to Memory
-				    *((int32_t *)(cfg)) = (dat1) + (dat2<<8) + (dat3<<16) + (dat4<<24);
+				    *((int32_t *)(cfg)) = (dat1) + (dat2<<8) + (SampleNr<<16) + (SampleNr<<24);
                     //Set measurment flag and actual time
 				    time_begin = clock();
-				    measuring = 1;
+				    
 				    break;
                 case 1:
-                    dat1 = recv_buffer & 0xff;
+                    dat1=value;
                     break;
                 case 2:
-                    dat2 = recv_buffer & 0xff;
+                    dat2=value;
 				    break;
                 case 3:
-				    dat3 = recv_buffer & 0xff;
+				    SampleRate=value;
 				    break;
                 case 4:
-				    dat4 = recv_buffer & 0xff;
+				    SampleNr=value;
+				    break;
+                case 5:
+                    if (value==0||value==1){
+                        stream=value;
+                    }
+				    break;
+                case 6:
+                    if (value==0||value==1){
+                        measuring = value;
+                    }
 				    break;
                 default:
                     printf("Wrong setup data\n");
                     break;
             }
 
-            //Check if it is in measuring mode and has finished (first bit od GPIO2 is trigger)
-            if (measuring == 1 && (*((uint32_t *)(cfg + 8)) & 1) != 0) { 
-      	        time_spent = ((double)(clock() - time_begin)) / CLOCKS_PER_SEC; // measure time
-                //Read data 
-                /*  example for single data
-                    buffer = (*((uint32_t *)(cfg + 8))); //read GPIO2 input
-                    send(sock_client, buffer, sizeof(buffer), MSG_NOSIGNAL);
-                */
-      	        for(j = 0; j < NR_SAMPLE; ++j){
-                    buffer[j] = (*((uint32_t *)(dat + 4*j))); //read from bram via IP core "axi_bram_reader"
+            if(stream==1){
+                //Send data every 100ms
+                if (measuring == 1 && ((double)(clock() - time_begin)) / CLOCKS_PER_SEC >= (double)SampleRate/1000){
+                    double time=((double)(clock() - time_begin)) / CLOCKS_PER_SEC;
+                    //printf("time: %f mode: %d \n",time,stream);
+                    time_begin = clock();
+                    buffer[0] = (*((uint32_t *)(cfg+8))); //read GPIO2 input
+                    send(sock_client, buffer, 4, MSG_NOSIGNAL);
                 }
-			    //Send buffer to client
-      	        send(sock_client, buffer, 4*NR_SAMPLE, MSG_NOSIGNAL);
-      	        printf("Measurment ready in %f s\n", time_spent);
-		        measuring = 0;
-		        break;
             }
-
+            else{
+                //Check if it is in measuring block mode and has finished (first bit od GPIO2 is trigger)
+                if (measuring == 1 && (*((uint32_t *)(cfg + 8)) & 1) != 0) { 
+                    time_spent = ((double)(clock() - time_begin)) / CLOCKS_PER_SEC; // measure time
+                    //Read data 
+                    /*  example for single data
+                        buffer[0] = (*((uint32_t *)(cfg + 8))); //read GPIO2 input
+                        send(sock_client, buffer, sizeof(buffer), MSG_NOSIGNAL);
+                    */
+                    for(int j = 0; j < NR_SAMPLE; ++j){
+                        buffer[j] = (*((uint32_t *)(dat + 4*j))); //read from bram via IP core "axi_bram_reader"
+                    }
+                    //Send buffer to client
+                    send(sock_client, buffer, 4*NR_SAMPLE, MSG_NOSIGNAL);
+                    printf("Measurment ready in %f s\n", time_spent);
+                    measuring = 0;
+                    break;
+                }
+            }
+            
         }
         close(sock_client);
     }
@@ -140,3 +165,4 @@ int main(){
     close(sock_server);
     return EXIT_SUCCESS;
 }
+

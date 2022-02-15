@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>350</width>
-    <height>251</height>
+    <width>802</width>
+    <height>623</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
      <widget class="QLabel" name="Title">
       <property name="font">
@@ -28,32 +28,168 @@
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0">
+     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,0">
       <item>
-       <widget class="QWidget" name="MplWidget" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>200</width>
-          <height>200</height>
-         </size>
-        </property>
-       </widget>
+       <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0">
+        <item>
+         <widget class="QWidget" name="MplWidget" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>200</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="0" column="0">
+             <widget class="QLabel" name="labelScal1">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
+              <property name="text">
+               <string>Scaling Channel 1</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="inputScal1">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>1</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="labelScal2">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
+              <property name="text">
+               <string>Scaling Channel 2</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="inputScal2">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>1</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="labelRangeMax">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
+              <property name="text">
+               <string>y max</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="inputRangeMax">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>8192</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="labelRangeMin">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
+              <property name="text">
+               <string>y min</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLineEdit" name="inputRangeMin">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>-8192</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </item>
       <item>
-       <layout class="QFormLayout" name="formLayout">
-        <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0" colspan="2">
          <widget class="QLabel" name="labelData1">
           <property name="font">
            <font>
-            <pointsize>12</pointsize>
+            <pointsize>10</pointsize>
            </font>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
           </property>
           <property name="text">
            <string>Data1</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item row="0" column="2">
          <widget class="QLineEdit" name="inputData1">
           <property name="font">
            <font>
@@ -61,23 +197,26 @@
            </font>
           </property>
           <property name="text">
-           <string>10</string>
+           <string>0</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="1" column="0" colspan="2">
          <widget class="QLabel" name="labelData2">
           <property name="font">
            <font>
-            <pointsize>12</pointsize>
+            <pointsize>10</pointsize>
            </font>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
           </property>
           <property name="text">
            <string>Data2</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
+        <item row="1" column="2">
          <widget class="QLineEdit" name="inputData2">
           <property name="font">
            <font>
@@ -85,23 +224,26 @@
            </font>
           </property>
           <property name="text">
-           <string>2</string>
+           <string>0</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
+        <item row="2" column="0" colspan="2">
          <widget class="QLabel" name="labelData3">
           <property name="font">
            <font>
-            <pointsize>12</pointsize>
+            <pointsize>10</pointsize>
            </font>
           </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
           <property name="text">
-           <string>Data3</string>
+           <string>Sample Rate [125MHz/2^x]</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="2" column="2">
          <widget class="QLineEdit" name="inputData3">
           <property name="font">
            <font>
@@ -109,23 +251,26 @@
            </font>
           </property>
           <property name="text">
-           <string>0</string>
+           <string>7</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="3" column="0" colspan="2">
          <widget class="QLabel" name="labelData4">
           <property name="font">
            <font>
-            <pointsize>12</pointsize>
+            <pointsize>10</pointsize>
            </font>
           </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
           <property name="text">
-           <string>Data4</string>
+           <string>Nr. of Sample</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="3" column="2">
          <widget class="QLineEdit" name="inputData4">
           <property name="font">
            <font>
@@ -133,11 +278,11 @@
            </font>
           </property>
           <property name="text">
-           <string>0</string>
+           <string>1000</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="4" column="2">
          <widget class="QPushButton" name="buttonSend">
           <property name="font">
            <font>
@@ -145,11 +290,89 @@
            </font>
           </property>
           <property name="text">
-           <string>Send</string>
+           <string>Send Data</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="8" column="2">
+         <widget class="QPushButton" name="buttonMeasurement">
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Start Measurement</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="0" colspan="2">
+         <widget class="QLabel" name="labelFileName">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="text">
+           <string>File Name</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="2">
+         <widget class="QLineEdit" name="inputFileName">
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Data</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0" colspan="2">
+         <widget class="QRadioButton" name="radioButtonStram">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Streaming Mode</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0" colspan="2">
+         <widget class="QRadioButton" name="radioButtonBlock">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Block mode</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="0" colspan="2">
+         <widget class="QCheckBox" name="checkBoxStore">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Store to *.csv</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0" colspan="3">
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
