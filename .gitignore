@@ -4,6 +4,7 @@
 *.img
 *.tar.gz
 *.zip
+*.log
 vivado*
 webtalk*
 tmp
