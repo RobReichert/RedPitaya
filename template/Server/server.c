@@ -18,7 +18,6 @@ Modified from Pavel Demin's server.c
 #include <time.h>
 
 #define PORT 1001
-#define NR_SAMPLE 12 //number of samples
 #define READBUFFER_SICE 8192 //maximum sice for readbuffer
 
 int main(){
@@ -34,8 +33,8 @@ int main(){
     uint32_t command;//Incomming command number
     uint32_t buffer[READBUFFER_SICE];//buffer for data transmission 
     //Application dependend Variables
-    void *cfg, *dat; //pointer to memory data
-    uint32_t dat1=0, dat2=0, SampleRate=10, SampleNr=1000;
+    void *gpio, *bram; //pointer to memory data
+    uint32_t dat1=0, dat2=0, SampleRate=4, SampleNr=10; //configuraton settings
     int nsmpl; //number of samples
     int stream=0; //set stream (1) or burst (0) mode
     //Measurement time calculation
@@ -53,8 +52,8 @@ int main(){
         return EXIT_FAILURE;
     }
     //map memory to pointer (adress should match Vivado setting)
-    dat = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x40000000);
-    cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x42000000);
+    bram = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x40000000);
+    gpio = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x42000000);
 
 ////Server init
     //create socket for Server
@@ -95,23 +94,23 @@ int main(){
             command = recv_buffer>>28;
             //printf("command: %5d value: %5d \n",command,value);
             switch(command){
-                case 0: //Write config to Memory
-				    *((int32_t *)(cfg)) = (dat1) + (dat2<<8) + (SampleNr<<16) + (SampleNr<<24);
-                    //Set measurment flag and actual time
-				    time_begin = clock();
-				    
+                case 0: //reserve
 				    break;
-                case 1:
+                case 1: 
                     dat1=value;
                     break;
                 case 2:
                     dat2=value;
 				    break;
                 case 3:
-				    SampleRate=value;
+                    if (value<=16){
+				        SampleRate=value;
+                    }
 				    break;
                 case 4:
-				    SampleNr=value;
+                    if (value<=10){
+				        SampleNr=value;
+                    }
 				    break;
                 case 5:
                     if (value==0||value==1){
@@ -121,6 +120,18 @@ int main(){
                 case 6:
                     if (value==0||value==1){
                         measuring = value;
+                        //Set measurment flag and actual time
+				        time_begin = clock();
+                        if (value==1){
+                            printf("Measurement started\n");
+                            *((int32_t *)(gpio+8)) = (0x000b0000);
+                            *((int32_t *)(gpio+12)) = (0x80000000);//set tri state register
+                            printf("%x\n", (*((uint32_t *)(gpio+4))));
+                        }else{
+                            printf("Measurement stoped\n");
+                            *((int32_t *)(gpio+12)) = (0x00000000);//set tri state register
+                            //printf("%x\n", (*((uint32_t *)(gpio+8))));
+                        }
                     }
 				    break;
                 default:
@@ -132,29 +143,28 @@ int main(){
                 //Send data every 100ms
                 if (measuring == 1 && ((double)(clock() - time_begin)) / CLOCKS_PER_SEC >= (double)SampleRate/1000){
                     double time=((double)(clock() - time_begin)) / CLOCKS_PER_SEC;
-                    //printf("time: %f mode: %d \n",time,stream);
+                    printf("time: %f mode: %d value: %x\n",time,stream,(*((uint32_t *)(gpio))));
                     time_begin = clock();
-                    buffer[0] = (*((uint32_t *)(cfg+8))); //read GPIO2 input
+                    buffer[0] = (*((uint32_t *)(gpio))); //read GPIO2 input
                     send(sock_client, buffer, 4, MSG_NOSIGNAL);
                 }
             }
             else{
-                //Check if it is in measuring block mode and has finished (first bit od GPIO2 is trigger)
-                if (measuring == 1 && (*((uint32_t *)(cfg + 8)) & 1) != 0) { 
+                //Check if it is in measuring block mode and has finished (last bit of GPIO2 is trigger)
+                if ((measuring == 1 && (*((uint32_t *)(gpio+8)) & 0x80000000) != 0)||(((double)(clock() - time_begin)) / CLOCKS_PER_SEC<1)) { 
+                    //while (((double)(clock() - time_begin)) / CLOCKS_PER_SEC<1)
                     time_spent = ((double)(clock() - time_begin)) / CLOCKS_PER_SEC; // measure time
-                    //Read data 
-                    /*  example for single data
-                        buffer[0] = (*((uint32_t *)(cfg + 8))); //read GPIO2 input
-                        send(sock_client, buffer, sizeof(buffer), MSG_NOSIGNAL);
-                    */
-                    for(int j = 0; j < NR_SAMPLE; ++j){
-                        buffer[j] = (*((uint32_t *)(dat + 4*j))); //read from bram via IP core "axi_bram_reader"
+                    printf("time: %f \n",time_spent);
+                    *((int32_t *)(gpio+12)) = (0x00000000);//set tri state register
+                    for(int j = 0; j < (1<<SampleNr); ++j){
+                        buffer[j] = (*((uint32_t *)(bram + 4*j))); //read from bram via IP core "axi_bram_reader"
                     }
                     //Send buffer to client
-                    send(sock_client, buffer, 4*NR_SAMPLE, MSG_NOSIGNAL);
+                    send(sock_client, buffer, 4*(1<<SampleNr), MSG_NOSIGNAL);
                     printf("Measurment ready in %f s\n", time_spent);
                     measuring = 0;
                     break;
+                    *((int32_t *)(gpio+12)) = (0x00000000);//set tri state register
                 }
             }
             
