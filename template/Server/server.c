@@ -84,6 +84,7 @@ int main(){
             perror("accept");
             return EXIT_FAILURE;
         }
+        printf("sock client accepted\n");
         while(1){
             //recive data and breake if connection is closed
             if (recv(sock_client, (char *)&recv_buffer, 4, MSG_DONTWAIT) == 0){
